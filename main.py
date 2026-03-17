@@ -387,6 +387,7 @@ def create_editor(parent, path):
     text.bind("<Control-c>", lambda e: text.event_generate("<<Copy>>"))
     text.bind("<Control-v>", lambda e: text.event_generate("<<Paste>>"))
     text.bind("<Control-x>", lambda e: text.event_generate("<<Cut>>"))
+    text.bind("<Return>", auto_indent)
     text.bind("<Control-f>", toggle_find_bar)
 
     with open(path, "r", encoding="utf-8", errors="replace") as f:
@@ -444,6 +445,14 @@ def save_file():
             with open(path, "w", encoding="utf-8") as f:
                 f.write(t.get("1.0", "end-1c"))
             status.configure(text=f"Saved: {os.path.basename(path)}")
+def auto_indent(event):
+    t = event.widget
+    line = t.get("insert linestart", "insert")
+    indent = re.match(r"\s*", line).group()
+    t.insert("insert", "\n" + indent)
+    return "break"
+
+
 tree.bind("<<TreeviewSelect>>", lambda e:
     open_tab(tree.item(tree.selection()[0], "values")[0])
 )
