@@ -435,7 +435,15 @@ def close_tab_by_path(path):
     if path in tabs:
         notebook.forget(tabs[path])
         del tabs[path]
-
+def save_file():
+    t = get_active_text()
+    if not t:
+        return
+    for path, frame in tabs.items():
+        if str(frame) == notebook.select():
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(t.get("1.0", "end-1c"))
+            status.configure(text=f"Saved: {os.path.basename(path)}")
 tree.bind("<<TreeviewSelect>>", lambda e:
     open_tab(tree.item(tree.selection()[0], "values")[0])
 )
@@ -446,6 +454,6 @@ root.bind("<Control-w>", lambda e:
     )
 )
 root.bind("<Control-f>", toggle_find_bar)
-
+root.bind("<Control-s>", lambda e: save_file())
 refresh_tree()
 root.mainloop()
